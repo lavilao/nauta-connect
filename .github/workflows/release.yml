@@ -1,0 +1,61 @@
+name: Build and Release Extension
+
+on:
+  push:
+    branches: [ master ]
+  create:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Bun
+        run: curl -fsSL https://bun.sh/install | bash
+        shell: bash
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build extension
+        run: node utils/build.js
+
+      - name: Create zip
+        run: |
+          cd build
+          zip -r ../nauta-connect-${{ github.ref_name || github.sha }}.zip .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-build
+          path: nauta-connect-*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-build
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: nauta-connect-*.zip
+          generate_release_notes: true
