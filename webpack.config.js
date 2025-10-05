@@ -1,11 +1,11 @@
-var webpack = require('webpack'),
-  path = require('path'),
-  fileSystem = require('fs-extra'),
-  env = require('./utils/env'),
-  { CleanWebpackPlugin } = require('clean-webpack-plugin'),
-  CopyWebpackPlugin = require('copy-webpack-plugin'),
-  HtmlWebpackPlugin = require('html-webpack-plugin'),
-  WriteFilePlugin = require('write-file-webpack-plugin');
+var webpack = require('webpack');
+var path = require('path');
+var fileSystem = require('fs-extra');
+var env = require('./utils/env');
+var { CleanWebpackPlugin } = require('clean-webpack-plugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var WriteFilePlugin = require('write-file-webpack-plugin');
 
 // load the secrets
 var alias = {
@@ -35,11 +35,8 @@ var options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
     popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
-    background: path.join(__dirname, 'src', 'pages', 'Background', 'index.jsx'),
+    background: path.join(__dirname, 'src', 'pages', 'Background', 'background.js'),
     license: path.join(__dirname, 'src', 'pages', 'License', 'index.jsx'),
-  },
-  chromeExtensionBoilerplate: {
-    notHotReload: ['contentScript'],
   },
   output: {
     path: path.resolve(__dirname, 'build'),
@@ -49,49 +46,49 @@ var options = {
     rules: [
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader',
+        use: ['style-loader', 'css-loader'],
         exclude: /node_modules/,
       },
       {
         test: new RegExp('.(' + fileExtensions.join('|') + ')$'),
-        loader: 'file-loader?name=[name].[ext]',
+        type: 'asset/resource',
+        generator: {
+          filename: '[name][ext]',
+        },
         exclude: /node_modules/,
       },
       {
         test: /\.html$/,
-        loader: 'html-loader',
+        type: 'asset/source',
         exclude: /node_modules/,
       },
       {
         test: /\.(js|jsx)$/,
-        loader: 'babel-loader',
         exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react'],
+            plugins: ['@babel/plugin-proposal-class-properties'],
+          },
+        },
       },
     ],
   },
   resolve: {
     alias: alias,
-    extensions: fileExtensions
-      .map((extension) => '.' + extension)
-      .concat(['.jsx', '.js', '.css']),
+    extensions: fileExtensions.map((ext) => '.' + ext).concat(['.js', '.jsx', '.css']),
   },
   plugins: [
     new webpack.ProgressPlugin(),
-    // clean the build folder
-    new CleanWebpackPlugin({
-      verbose: true,
-      cleanStaleWebpackAssets: false,
-    }),
-    // expose and write the allowed env vars on the compiled bundle
+    new CleanWebpackPlugin(),
     new webpack.EnvironmentPlugin(['NODE_ENV']),
-    new CopyWebpackPlugin(
-      [
+    new CopyWebpackPlugin({
+      patterns: [
         {
           from: 'src/manifest.json',
-          to: path.join(__dirname, 'build'),
-          force: true,
-          transform: function(content, path) {
-            // generates the manifest file using the package.json informations
+          to: 'build',
+          transform(content) {
             return Buffer.from(
               JSON.stringify({
                 description: process.env.npm_package_description,
@@ -102,41 +99,24 @@ var options = {
           },
         },
         {
-          from: 'src/assets/img/',
-          to: path.join(__dirname, 'build'),
-          force: true,
+          from: 'src/assets/img',
+          to: 'build',
         },
         {
-          from: 'src/assets/video/',
-          to: path.join(__dirname, 'build'),
-          force: true,
+          from: 'src/assets/video',
+          to: 'build',
         },
       ],
-      {
-        logLevel: 'info',
-        copyUnmodified: true,
-      },
-    ),
+    }),
     new HtmlWebpackPlugin({
-      template: path.join(
-        __dirname, 'src', 'pages', 'Popup', 'index.html',
-      ),
+      template: path.join(__dirname, 'src', 'pages', 'Popup', 'index.html'),
       filename: 'popup.html',
       chunks: ['popup'],
     }),
     new HtmlWebpackPlugin({
-      template: path.join(
-        __dirname, 'src', 'pages', 'License', 'index.html',
-      ),
+      template: path.join(__dirname, 'src', 'pages', 'License', 'index.html'),
       filename: 'license.html',
       chunks: ['license'],
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(
-        __dirname, 'src', 'pages', 'Background', 'index.html',
-      ),
-      filename: 'background.html',
-      chunks: ['background'],
     }),
     new WriteFilePlugin(),
   ],
