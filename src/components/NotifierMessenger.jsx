@@ -1,6 +1,6 @@
-import { Snackbar } from '@material-ui/core';
+import { Snackbar } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
   close: {
@@ -15,7 +15,7 @@ const NotifierMessenger = (props) => {
 
   useEffect(() => {
     chrome.runtime.onMessage.addListener(
-      function(request, sender, sendResponse) {
+      function (request, sender, sendResponse) {
         switch (request.type) {
           case 'LOGIN_ERROR':
             setMsgSnack(request.payload);
@@ -26,16 +26,21 @@ const NotifierMessenger = (props) => {
             setSnackOpen(true);
             break;
         }
-      },
+      }
     );
   }, []);
-
 
   const handleClose = () => {
     setSnackOpen(false);
   };
   return (
-    <Snackbar autoHideDuration={6000} severity="error" message={msgSnack} open={snackOpen} onClose={handleClose}/>
+    <Snackbar
+      autoHideDuration={6000}
+      severity="error"
+      message={msgSnack}
+      open={snackOpen}
+      onClose={handleClose}
+    />
   );
 };
 

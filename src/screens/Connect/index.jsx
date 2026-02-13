@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import Connect from './connect';
-import Container from '@material-ui/core/Container';
+import Container from '@mui/material/Container';
 
 const connectController = (props) => {
   const [loading, setLoading] = useState(true);
@@ -11,12 +11,12 @@ const connectController = (props) => {
     }, 1000 * 1.3);
     return (
       <Container style={{ textAlign: 'center', marginTop: 100 }}>
-        <CircularProgress style={{color: 'white'}}/>
+        <CircularProgress style={{ color: 'white' }} />
       </Container>
     );
   }
 
-  return <Connect/>;
+  return <Connect />;
 };
 
 export default connectController;

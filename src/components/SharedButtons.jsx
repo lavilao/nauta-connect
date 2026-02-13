@@ -1,7 +1,7 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { Tooltip, Typography } from '@material-ui/core';
-import Box from '@material-ui/core/Box';
+import { makeStyles } from '@mui/styles';
+import { Tooltip, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
 import {
   FacebookIcon,
   FacebookMessengerIcon,
@@ -24,12 +24,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const ShareSocialBtn = ({ Btn, Icon, tooltip, title, shareUrl, ...props }) => {
+export const ShareSocialBtn = ({
+  Btn,
+  Icon,
+  tooltip,
+  title,
+  shareUrl,
+  ...props
+}) => {
   const classes = useStyles();
   return (
     <Tooltip title={tooltip} arrow>
       <Btn quote={title} url={shareUrl} className={classes.icons} {...props}>
-        <Icon size={32} round={true}/>
+        <Icon size={32} round={true} />
       </Btn>
     </Tooltip>
   );
@@ -37,23 +44,55 @@ export const ShareSocialBtn = ({ Btn, Icon, tooltip, title, shareUrl, ...props }
 
 const ShareButtons = ({ className, configs, ...props }) => {
   const shareUrl = configs.urlShared;
-  const title = configs.navigator === 'firefox'
-  ? "Complemento de Mozilla Firefox para conectarse a la Red Nauta de ETECSA"
-  : "Extensión de Google Chrome para conectarse a la Red Nauta de ETECSA";
+  const title =
+    configs.navigator === 'firefox'
+      ? 'Complemento de Mozilla Firefox para conectarse a la Red Nauta de ETECSA'
+      : 'Extensión de Google Chrome para conectarse a la Red Nauta de ETECSA';
   return (
     <Box className={className} {...props}>
       <Typography align="left">Compartir extensión por:</Typography>
-      <ShareSocialBtn Btn={FacebookShareButton} Icon={FacebookIcon} tooltip="Facebook" title={title}
-                      shareUrl={shareUrl}/>
-      <ShareSocialBtn Btn={FacebookMessengerShareButton} Icon={FacebookMessengerIcon} tooltip="Messenger" title={title}
-                      shareUrl={shareUrl}/>
-      <ShareSocialBtn Btn={WhatsappShareButton} Icon={WhatsappIcon} tooltip="Whatsapp" title={title}
-                      shareUrl={shareUrl}/>
-      <ShareSocialBtn Btn={TwitterShareButton} Icon={TwitterIcon} tooltip="Twitter" title={title} shareUrl={shareUrl}/>
-      <ShareSocialBtn Btn={TelegramShareButton} Icon={TelegramIcon} tooltip="Telegram" title={title}
-                      shareUrl={shareUrl}/>
-      <ShareSocialBtn Btn={LinkedinShareButton} Icon={LinkedinIcon} tooltip="Linkedin" title={title}
-                      shareUrl={shareUrl}/>
+      <ShareSocialBtn
+        Btn={FacebookShareButton}
+        Icon={FacebookIcon}
+        tooltip="Facebook"
+        title={title}
+        shareUrl={shareUrl}
+      />
+      <ShareSocialBtn
+        Btn={FacebookMessengerShareButton}
+        Icon={FacebookMessengerIcon}
+        tooltip="Messenger"
+        title={title}
+        shareUrl={shareUrl}
+      />
+      <ShareSocialBtn
+        Btn={WhatsappShareButton}
+        Icon={WhatsappIcon}
+        tooltip="Whatsapp"
+        title={title}
+        shareUrl={shareUrl}
+      />
+      <ShareSocialBtn
+        Btn={TwitterShareButton}
+        Icon={TwitterIcon}
+        tooltip="Twitter"
+        title={title}
+        shareUrl={shareUrl}
+      />
+      <ShareSocialBtn
+        Btn={TelegramShareButton}
+        Icon={TelegramIcon}
+        tooltip="Telegram"
+        title={title}
+        shareUrl={shareUrl}
+      />
+      <ShareSocialBtn
+        Btn={LinkedinShareButton}
+        Icon={LinkedinIcon}
+        tooltip="Linkedin"
+        title={title}
+        shareUrl={shareUrl}
+      />
       {/*<ShareSocialBtn Btn={EmailShareButton} Icon={EmailIcon} tooltip="Enviar URL por correo"  title={title} shareUrl={shareUrl}/>*/}
     </Box>
   );

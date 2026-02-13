@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import './index.css';
-import { Store } from 'react-chrome-redux';
+import { Store } from '../../store/chromeRedux';
 import { Provider } from 'react-redux';
 import { loginInitialState } from '../../store/reducers/login';
 import License from './License';
@@ -22,9 +22,9 @@ const proxyStore = new Store({
 const App = (props) => {
   return (
     <Provider store={proxyStore}>
-      <License/>
+      <License />
     </Provider>
   );
 };
 
-render(<App/>, window.document.querySelector('#app-container'));
+render(<App />, window.document.querySelector('#app-container'));

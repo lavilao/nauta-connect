@@ -5,27 +5,32 @@ import { connect } from 'react-redux';
 import Connect from '../../screens/Connect';
 import useStyles from '../../screens/useStyles';
 import Splash from '../../screens/Splash';
-import { Box } from '@material-ui/core';
-import { ThemeProvider } from '@material-ui/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { createMuiTheme } from '@material-ui/core/styles';
-import { blue, indigo } from '@material-ui/core/colors';
-// import ShareButtons from '../../components/SharedButtons';
-
+import { Box } from '@mui/material';
+import { ThemeProvider } from '@mui/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme } from '@mui/material/styles';
+import { blue, indigo } from '@mui/material/colors';
 
 const Popup = ({ login, configs, ...props }) => {
-  let [theme, setTheme] = useState(createMuiTheme({
-    palette: {
-      primary: indigo,
-      secondary: blue,
-      type: configs.theme === 'auto'
-        ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        : (configs.theme || 'light'),
-    }, props: {
-      MuiMenuItem: { dense: true },
-      MuiListItem: {dense: true}
-    },
-  }));
+  let [theme, setTheme] = useState(
+    createTheme({
+      palette: {
+        primary: indigo,
+        secondary: blue,
+        mode:
+          configs.theme === 'auto'
+            ? window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : configs.theme || 'light',
+      },
+      components: {
+        MuiMenuItem: { defaultProps: { dense: true } },
+        MuiListItem: { defaultProps: { dense: true } },
+      },
+    })
+  );
   const classes = useStyles();
   useEffect(() => {
     setTimeout(() => {
@@ -34,16 +39,21 @@ const Popup = ({ login, configs, ...props }) => {
   }, []);
 
   useEffect(() => {
-    const themeNew = createMuiTheme({
+    const themeNew = createTheme({
       palette: {
         primary: indigo,
         secondary: blue,
-        type: configs.theme === 'auto'
-          ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          : (configs.theme || 'light'),
-      }, props: {
-        MuiMenuItem: { dense: true },
-        MuiListItem: {dense: true}
+        mode:
+          configs.theme === 'auto'
+            ? window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : configs.theme || 'light',
+      },
+      components: {
+        MuiMenuItem: { defaultProps: { dense: true } },
+        MuiListItem: { defaultProps: { dense: true } },
       },
     });
     setTheme(themeNew);
@@ -51,15 +61,12 @@ const Popup = ({ login, configs, ...props }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline/>
+      <CssBaseline />
       <Box {...props}>
-        <Splash/>
-        <div style={{ paddingTop: 100 }}/>
-        {login.status === 'connected' ? <Connect/> : <Login/>}
-        {/*<Connect/>*/}
-        {/*<ShareButtons className={classes.ShareButtons}/>*/}
-        {/*<div style={{ marginBottom: 15 }}/>*/}
-        <NotifierMessenger/>
+        <Splash />
+        <div style={{ paddingTop: 100 }} />
+        {login.status === 'connected' ? <Connect /> : <Login />}
+        <NotifierMessenger />
       </Box>
     </ThemeProvider>
   );

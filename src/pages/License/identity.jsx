@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
-import Skeleton from '@material-ui/lab/Skeleton';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Paper from '@mui/material/Paper';
+import { makeStyles } from '@mui/styles';
+import { Skeleton } from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,28 +49,66 @@ const Identity = ({ ...props }) => {
     <Paper className={classes.paper} {...props}>
       <Grid container className={classes.root} spacing={2}>
         <Grid item xs={4} className={classes.actions}>
-          <Typography align="center">
-            IDENTIDAD DEL USUARIO
-          </Typography>
+          <Typography align="center">IDENTIDAD DEL USUARIO</Typography>
         </Grid>
         <Grid item xs={3}>
-          {loading
-            ? (<Skeleton variant="rect" animation="wave" className={classes.inputSkeleton}/>)
-            : (<TextField margin="dense" size="small" fullWidth label="ID del usuario" variant="outlined"
-                          type="number" value={id} InputLabelProps={{ shrink: true }}/>)}
+          {loading ? (
+            <Skeleton
+              variant="rect"
+              animation="wave"
+              className={classes.inputSkeleton}
+            />
+          ) : (
+            <TextField
+              margin="dense"
+              size="small"
+              fullWidth
+              label="ID del usuario"
+              variant="outlined"
+              type="number"
+              value={id}
+              InputLabelProps={{ shrink: true }}
+            />
+          )}
         </Grid>
         <Grid item xs={3}>
-          {loading
-            ? (<Skeleton variant="rect" animation="wave" className={classes.inputSkeleton}/>)
-            : (<TextField margin="dense" size="small" fullWidth label="Tiempo de chequeo" variant="outlined"
-                          type="number" value={timeCheck} InputLabelProps={{ shrink: true }}/>)}
+          {loading ? (
+            <Skeleton
+              variant="rect"
+              animation="wave"
+              className={classes.inputSkeleton}
+            />
+          ) : (
+            <TextField
+              margin="dense"
+              size="small"
+              fullWidth
+              label="Tiempo de chequeo"
+              variant="outlined"
+              type="number"
+              value={timeCheck}
+              InputLabelProps={{ shrink: true }}
+            />
+          )}
         </Grid>
         <Grid item xs={2}>
-          {loading
-            ? (<Skeleton variant="rect" animation="wave" className={classes.inputSkeleton}/>)
-            : (<TextField margin="dense" size="small" fullWidth label="Navegador" variant="outlined"
-                          value={client} InputLabelProps={{ shrink: true }}/>)}
-
+          {loading ? (
+            <Skeleton
+              variant="rect"
+              animation="wave"
+              className={classes.inputSkeleton}
+            />
+          ) : (
+            <TextField
+              margin="dense"
+              size="small"
+              fullWidth
+              label="Navegador"
+              variant="outlined"
+              value={client}
+              InputLabelProps={{ shrink: true }}
+            />
+          )}
         </Grid>
       </Grid>
     </Paper>

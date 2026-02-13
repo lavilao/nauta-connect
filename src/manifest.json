@@ -1,5 +1,6 @@
 {
   "name": "nauta-connect",
+  "author": "",
   "background": {
     "service_worker": "background.bundle.js"
   },
@@ -13,12 +14,8 @@
     "96": "icon-96.png",
     "128": "icon-128.png"
   },
-  "permissions": [
-    "storage",
-    "notifications",
-    "https://secure.etecsa.net/*",
-    "proxy"
-  ],
+  "permissions": ["storage", "notifications", "proxy"],
+  "host_permissions": ["https://secure.etecsa.net/*"],
   "manifest_version": 3,
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"

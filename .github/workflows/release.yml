@@ -1,17 +1,19 @@
-name: Build and Release Extension
+name: Build and Release Chrome Extension
 
 on:
   push:
-    branches: [ master ]
-  create:
+    branches: [master]
     tags:
       - 'v*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -21,12 +23,14 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Bun
-        run: curl -fsSL https://bun.sh/install | bash
-        shell: bash
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
         run: bun install
+
+      - name: Lint
+        run: bunx eslint . --ext .js,.jsx
 
       - name: Build extension
         run: node utils/build.js
@@ -34,7 +38,7 @@ jobs:
       - name: Create zip
         run: |
           cd build
-          zip -r ../nauta-connect-${{ github.ref_name || github.sha }}.zip .
+          zip -r ../nauta-connect-${{ github.ref_name }}.zip .
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -54,7 +58,7 @@ jobs:
         with:
           name: extension-build
 
-      - name: Create Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: nauta-connect-*.zip

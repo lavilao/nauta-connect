@@ -29,9 +29,9 @@ const proxy = (state = proxyInitialState, { type, payload }) => {
     case 'CHECKED_PROXY':
       return { ...state, checkConnection: true };
     case 'SET_FIREFOX_ERROR_LISTENER':
-      return {...state, firefoxProxyErrorListener: payload};
+      return { ...state, firefoxProxyErrorListener: payload };
     case 'SET_FIREFOX_LISTENER':
-      return {...state, firefoxProxyListener: payload};
+      return { ...state, firefoxProxyListener: payload };
     default:
       return state;
   }

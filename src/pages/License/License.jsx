@@ -1,38 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { ThemeProvider } from '@material-ui/core/styles';
-import { blue, indigo } from '@material-ui/core/colors';
-import { createMuiTheme } from '@material-ui/core';
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider } from '@mui/material/styles';
+import { blue, indigo } from '@mui/material/colors';
+import { createTheme } from '@mui/material';
 import Content from './content';
-import Container from '@material-ui/core/Container';
-
+import Container from '@mui/material/Container';
 
 const License = ({ configs, ...props }) => {
-  let [theme, setTheme] = useState(createMuiTheme({
-    palette: {
-      primary: indigo,
-      secondary: blue,
-      type: configs.theme === 'auto'
-        ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        : (configs.theme || 'light'),
-    }, props: {
-      MuiMenuItem: { dense: true },
-      MuiListItem: { dense: true },
-    },
-  }));
-
-  useEffect(() => {
-    const themeNew = createMuiTheme({
+  let [theme, setTheme] = useState(
+    createTheme({
       palette: {
         primary: indigo,
         secondary: blue,
-        type: configs.theme === 'auto'
-          ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-          : (configs.theme || 'light'),
-      }, props: {
-        MuiMenuItem: { dense: true },
-        MuiListItem: { dense: true },
+        mode:
+          configs.theme === 'auto'
+            ? window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : configs.theme || 'light',
+      },
+      components: {
+        MuiMenuItem: { defaultProps: { dense: true } },
+        MuiListItem: { defaultProps: { dense: true } },
+      },
+    })
+  );
+
+  useEffect(() => {
+    const themeNew = createTheme({
+      palette: {
+        primary: indigo,
+        secondary: blue,
+        mode:
+          configs.theme === 'auto'
+            ? window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : configs.theme || 'light',
+      },
+      components: {
+        MuiMenuItem: { defaultProps: { dense: true } },
+        MuiListItem: { defaultProps: { dense: true } },
       },
     });
     setTheme(themeNew);
@@ -40,9 +51,9 @@ const License = ({ configs, ...props }) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline/>
+      <CssBaseline />
       <Container maxWidth="md">
-        <Content/>
+        <Content />
       </Container>
     </ThemeProvider>
   );

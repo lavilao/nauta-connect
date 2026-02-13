@@ -1,8 +1,8 @@
 import React from 'react';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import Button from '@material-ui/core/Button';
-import { makeStyles } from '@material-ui/core/styles';
+import CircularProgress from '@mui/material/CircularProgress';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import Button from '@mui/material/Button';
+import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles((theme) => ({
   btn: {
@@ -10,8 +10,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
-const ButtonCustom = ({fullWidth = true, onClick, children, ...props }) => {
+const ButtonCustom = ({ fullWidth = true, onClick, children, ...props }) => {
   const classes = useStyles();
   return (
     <Button

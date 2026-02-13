@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 
 export const loginInitialState = {
   updateInstance: parseInt((Math.random() * 100000000).toFixed()),
@@ -29,7 +29,7 @@ const login = (state = loginInitialState, { type, payload }) => {
       return state;
     case 'SET_ID_TIME_OUT_NEXT_UPDATE':
       clearTimeout(state.idTimeOutNextUpdate);
-      return {...state, idTimeOutNextUpdate: payload};
+      return { ...state, idTimeOutNextUpdate: payload };
     case 'LOGOUT_BEGIN':
       return state;
     case 'LOGOUT_SUCCESS':
@@ -40,7 +40,10 @@ const login = (state = loginInitialState, { type, payload }) => {
     case 'LOGOUT_FAILURE':
       return state;
     case 'FORCE_UPDATE_ACTION':
-      return { ...state, updateInstance: parseInt((Math.random() * 100000000).toFixed()) };
+      return {
+        ...state,
+        updateInstance: parseInt((Math.random() * 100000000).toFixed()),
+      };
     case 'LOAD_SESSION_FROM_STORAGE':
       return { ...state, ...payload, status: 'connected' };
     default:

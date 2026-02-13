@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
 import * as moment from 'moment';
 import useStyles from '../useStyles';
 import { formatTime } from '../../utils/timeUtil';
 import ButtonCustom from '../../components/ButtonCustom';
-import CancelIcon from '@material-ui/icons/Cancel';
-import Container from '@material-ui/core/Container';
+import CancelIcon from '@mui/icons-material/Cancel';
+import Container from '@mui/material/Container';
 import './anims.css';
-import ReplyIcon from '@material-ui/icons/Reply';
+import ReplyIcon from '@mui/icons-material/Reply';
 
 const Connect = ({ login, ...props }) => {
   const [time, setTime] = useState('--:--:--');
@@ -42,8 +42,7 @@ const Connect = ({ login, ...props }) => {
         parseInt(trestante[0]) * 60 * 60 * 1000 +
         parseInt(trestante[1]) * 60 * 1000 +
         parseInt(trestante[2]) * 1000;
-      if ((milTRestante - ms) <= 0)
-        endTimeToLogout();
+      if (milTRestante - ms <= 0) endTimeToLogout();
       setRestante(formatTime(milTRestante - ms));
     }
   };
@@ -60,24 +59,40 @@ const Connect = ({ login, ...props }) => {
     <Container className="containerConnect">
       <Typography>Usted se encuentra conectado</Typography>
       <Typography>{login.username ? login.username : '@nauta'}</Typography>
-      <Divider/>
-      <Typography>{time === '--:--:--' ? 'Tiempo inicial:' : 'Tiempo restante:'}</Typography>
+      <Divider />
+      <Typography>
+        {time === '--:--:--' ? 'Tiempo inicial:' : 'Tiempo restante:'}
+      </Typography>
       <Typography>{restante ? restante : '--:--:--'}</Typography>
       <Typography>Tiempo conectado:</Typography>
       <Typography>{time}</Typography>
 
       <div className={classes.buttonsContainer}>
-        <ButtonCustom color="inherit" onClick={logout} style={{ backgroundColor: 'white', color: '#3f51b5' }}
-                      startIcon={<CancelIcon/>}>DESCONECTARSE</ButtonCustom>
-        {showForce
-          ? <ButtonCustom fullWidth={false} color="inherit" onClick={forceLogout} style={{
-            backgroundColor: 'white', color: '#3f51b5', position: 'absolute', right: 10, bottom: 25,
-          }} startIcon={<ReplyIcon/>} children="Forzar"/>
-          : null
-        }
-
+        <ButtonCustom
+          color="inherit"
+          onClick={logout}
+          style={{ backgroundColor: 'white', color: '#3f51b5' }}
+          startIcon={<CancelIcon />}
+        >
+          DESCONECTARSE
+        </ButtonCustom>
+        {showForce ? (
+          <ButtonCustom
+            fullWidth={false}
+            color="inherit"
+            onClick={forceLogout}
+            style={{
+              backgroundColor: 'white',
+              color: '#3f51b5',
+              position: 'absolute',
+              right: 10,
+              bottom: 25,
+            }}
+            startIcon={<ReplyIcon />}
+            children="Forzar"
+          />
+        ) : null}
       </div>
-
     </Container>
   );
 };

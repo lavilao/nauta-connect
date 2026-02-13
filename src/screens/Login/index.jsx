@@ -6,9 +6,9 @@ import schemaValidation from './schemaValidation';
 import useStyles from '../useStyles';
 import CheckBoxCustom from '../../components/CheckBoxCustom';
 import ButtonCustom from '../../components/ButtonCustom';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import Container from '@material-ui/core/Container';
+import CircularProgress from '@mui/material/CircularProgress';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import Container from '@mui/material/Container';
 import AutoCompleteFieldCustom from '../../components/AutoCompleteFieldCustom';
 
 const initialValue = {
@@ -24,7 +24,16 @@ const Login = ({ login, userStorage, configs, ...props }) => {
   }, []);
 
   return (
-    <Container style={{ zIndex: -1000, position: configs.animSplashInit ? 'absolute' : configs.animSplashDisconnect ? 'absolute' : 'unset' }}>
+    <Container
+      style={{
+        zIndex: -1000,
+        position: configs.animSplashInit
+          ? 'absolute'
+          : configs.animSplashDisconnect
+            ? 'absolute'
+            : 'unset',
+      }}
+    >
       <Formik
         initialValues={initialValue}
         onSubmit={(values, formikHelpers) => {
@@ -47,7 +56,7 @@ const Login = ({ login, userStorage, configs, ...props }) => {
                 label="Usuario"
                 errors={formikBag.errors}
                 isSubmitting={formikBag.isSubmitting}
-                formikBag = {formikBag}
+                formikBag={formikBag}
                 name="username"
                 id="username"
                 next={document.querySelector('#password')}
@@ -64,16 +73,25 @@ const Login = ({ login, userStorage, configs, ...props }) => {
                 submitted={formikBag.submitCount > 0}
               />
 
-              <CheckBoxCustom label="Guardar contraseña" name="remember" id="remember"/>
+              <CheckBoxCustom
+                label="Guardar contraseña"
+                name="remember"
+                id="remember"
+              />
 
               <div className={classes.buttonsContainer}>
-                <ButtonCustom onClick={formikBag.submitForm} startIcon={
-                  formikBag.isSubmitting ? (
-                    <CircularProgress color="inherit" size={20}/>
-                  ) : (
-                    <ExitToAppIcon/>
-                  )
-                }>CONECTARSE</ButtonCustom>
+                <ButtonCustom
+                  onClick={formikBag.submitForm}
+                  startIcon={
+                    formikBag.isSubmitting ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : (
+                      <ExitToAppIcon />
+                    )
+                  }
+                >
+                  CONECTARSE
+                </ButtonCustom>
               </div>
             </Form>
           );
