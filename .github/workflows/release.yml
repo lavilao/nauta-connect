@@ -1,16 +1,26 @@
-name: Build and Release Chrome Extension
+name: Build and release
 
 on:
   push:
     branches: [master]
-    tags:
-      - 'v*'
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
+    name: Compile extension
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    outputs:
+      version: ${{ steps.verify.outputs.version }}
+      artifact: ${{ steps.package.outputs.artifact }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,10 +31,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -33,33 +44,112 @@ jobs:
         run: bunx eslint .
 
       - name: Build extension
-        run: node utils/build.js
+        env:
+          # Key used to encrypt the saved passwords. Optional, but without it the
+          # accounts saved by one build cannot be read by another one.
+          REACT_APP_KEY_PROTECT: ${{ secrets.REACT_APP_KEY_PROTECT }}
+        run: npm run build
 
-      - name: Create zip
+      - name: Verify the build output
+        id: verify
         run: |
-          cd build
-          zip -r ../nauta-connect-${{ github.ref_name }}.zip .
+          set -euo pipefail
 
-      - name: Upload build artifact
+          for file in manifest.json popup.html license.html offscreen.html \
+                      background.bundle.js popup.bundle.js license.bundle.js offscreen.bundle.js; do
+            if [ ! -f "build/$file" ]; then
+              echo "::error::the build is missing build/$file"
+              exit 1
+            fi
+          done
+
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          MANIFEST_VERSION=$(node -p "require('./build/manifest.json').version")
+          MANIFEST_VERSION_FIELD=$(node -p "require('./build/manifest.json').manifest_version")
+
+          if [ "$MANIFEST_VERSION_FIELD" != "3" ]; then
+            echo "::error::the manifest is not a Manifest V3 manifest"
+            exit 1
+          fi
+
+          if [ "$PKG_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "::error::package.json ($PKG_VERSION) and manifest.json ($MANIFEST_VERSION) versions differ"
+            exit 1
+          fi
+
+          echo "version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Package the extension
+        id: package
+        run: |
+          set -euo pipefail
+
+          ARTIFACT="nauta-connect-v${{ steps.verify.outputs.version }}.zip"
+          # Chrome loads the extension from the root of the archive.
+          (cd build && zip -qr "../$ARTIFACT" .)
+          echo "artifact=$ARTIFACT" >> "$GITHUB_OUTPUT"
+          ls -lh "$ARTIFACT"
+
+      - name: Upload the build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: extension-build
-          path: nauta-connect-*.zip
+          name: nauta-connect-extension
+          path: ${{ steps.package.outputs.artifact }}
+          if-no-files-found: error
 
   release:
+    name: Publish release
     needs: build
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write
     steps:
-      - name: Download build artifact
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download the build artifact
         uses: actions/download-artifact@v4
         with:
-          name: extension-build
+          name: nauta-connect-extension
 
-      - name: Create GitHub Release
+      - name: Resolve the release tag
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          if [ "$REF_TYPE" = "tag" ]; then
+            # Release the tag that was pushed, e.g. v1.4.1
+            echo "tag=$REF_NAME" >> "$GITHUB_OUTPUT"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Push to master: release v<version> if it does not exist yet.
+          TAG="v$VERSION"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null || gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::notice::$TAG already exists. Bump the version in package.json and src/manifest.json to publish a new release."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub release
+        if: steps.tag.outputs.publish == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Nauta Connect ${{ steps.tag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           files: nauta-connect-*.zip
           generate_release_notes: true
+          fail_on_unmatched_files: true
