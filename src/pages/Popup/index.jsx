@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import { Store } from '../../store/chromeRedux';
 import { Provider } from 'react-redux';
@@ -21,7 +21,7 @@ const proxyStore = new Store({
   portName: 'nauta-connect',
 });
 
-const App = (props) => {
+const App = () => {
   return (
     <Provider store={proxyStore}>
       <Popup />
@@ -29,4 +29,9 @@ const App = (props) => {
   );
 };
 
-render(<App />, window.document.querySelector('#app-container'));
+const container = window.document.querySelector('#app-container');
+createRoot(container).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

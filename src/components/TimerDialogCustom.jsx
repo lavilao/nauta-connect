@@ -17,7 +17,7 @@ const marks = [
   { value: 60 * 5, label: '5h' },
 ];
 
-const TimerDialog = ({ login, timerConnection, ...props }) => {
+const TimerDialog = ({ timerConnection }) => {
   const [timeLeft, setTimeLeft] = React.useState('1 hora');
   const [msDuration, setMsDuration] = React.useState(60);
 

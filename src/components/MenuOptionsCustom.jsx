@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import { Fragment } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import { Typography } from '@mui/material';
@@ -26,7 +26,6 @@ const MenuOptionsCustom = ({
   preventSleep,
   disableWarnings,
   autoProxy,
-  ...props
 }) => {
   return (
     <Fragment>

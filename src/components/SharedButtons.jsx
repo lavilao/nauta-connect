@@ -1,42 +1,26 @@
-import React from 'react';
-import { makeStyles } from '@mui/styles';
 import { Tooltip, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import {
-  FacebookIcon,
-  FacebookMessengerIcon,
+  FacebookLegacyIcon,
+  FacebookMessengerLegacyIcon,
   FacebookMessengerShareButton,
   FacebookShareButton,
-  LinkedinIcon,
+  LinkedinLegacyIcon,
   LinkedinShareButton,
-  TelegramIcon,
+  TelegramLegacyIcon,
   TelegramShareButton,
-  TwitterIcon,
-  TwitterShareButton,
-  WhatsappIcon,
+  WhatsappLegacyIcon,
   WhatsappShareButton,
+  XLegacyIcon,
+  XShareButton,
 } from 'react-share';
 import { connect } from 'react-redux';
 
-const useStyles = makeStyles((theme) => ({
-  icons: {
-    marginRight: 5,
-  },
-}));
-
-export const ShareSocialBtn = ({
-  Btn,
-  Icon,
-  tooltip,
-  title,
-  shareUrl,
-  ...props
-}) => {
-  const classes = useStyles();
+export const ShareSocialBtn = ({ Btn, Icon, tooltip, title, shareUrl, ...props }) => {
   return (
     <Tooltip title={tooltip} arrow>
-      <Btn quote={title} url={shareUrl} className={classes.icons} {...props}>
-        <Icon size={32} round={true} />
+      <Btn quote={title} url={shareUrl} sx={{ mr: 0.625 }} {...props}>
+        <Icon size={32} round />
       </Btn>
     </Tooltip>
   );
@@ -48,60 +32,58 @@ const ShareButtons = ({ className, configs, ...props }) => {
     configs.navigator === 'firefox'
       ? 'Complemento de Mozilla Firefox para conectarse a la Red Nauta de ETECSA'
       : 'Extensión de Google Chrome para conectarse a la Red Nauta de ETECSA';
+
   return (
     <Box className={className} {...props}>
       <Typography align="left">Compartir extensión por:</Typography>
       <ShareSocialBtn
         Btn={FacebookShareButton}
-        Icon={FacebookIcon}
+        Icon={FacebookLegacyIcon}
         tooltip="Facebook"
         title={title}
         shareUrl={shareUrl}
       />
       <ShareSocialBtn
         Btn={FacebookMessengerShareButton}
-        Icon={FacebookMessengerIcon}
+        Icon={FacebookMessengerLegacyIcon}
         tooltip="Messenger"
         title={title}
         shareUrl={shareUrl}
       />
       <ShareSocialBtn
         Btn={WhatsappShareButton}
-        Icon={WhatsappIcon}
+        Icon={WhatsappLegacyIcon}
         tooltip="Whatsapp"
         title={title}
         shareUrl={shareUrl}
       />
       <ShareSocialBtn
-        Btn={TwitterShareButton}
-        Icon={TwitterIcon}
-        tooltip="Twitter"
+        Btn={XShareButton}
+        Icon={XLegacyIcon}
+        tooltip="X"
         title={title}
         shareUrl={shareUrl}
       />
       <ShareSocialBtn
         Btn={TelegramShareButton}
-        Icon={TelegramIcon}
+        Icon={TelegramLegacyIcon}
         tooltip="Telegram"
         title={title}
         shareUrl={shareUrl}
       />
       <ShareSocialBtn
         Btn={LinkedinShareButton}
-        Icon={LinkedinIcon}
+        Icon={LinkedinLegacyIcon}
         tooltip="Linkedin"
         title={title}
         shareUrl={shareUrl}
       />
-      {/*<ShareSocialBtn Btn={EmailShareButton} Icon={EmailIcon} tooltip="Enviar URL por correo"  title={title} shareUrl={shareUrl}/>*/}
     </Box>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    configs: state.configs,
-  };
-};
+const mapStateToProps = (state) => ({
+  configs: state.configs,
+});
 
 export default connect(mapStateToProps)(ShareButtons);

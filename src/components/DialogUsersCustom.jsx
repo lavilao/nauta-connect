@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import List from '@mui/material/List';
@@ -13,17 +13,16 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import AlertDialogCustom from './AlertDialogCustom';
 import Typography from '@mui/material/Typography';
+import { storageGet } from '../utils/chrome';
 
-const DialogUsersCustom = ({ configs, userStorage, ...props }) => {
+const DialogUsersCustom = ({ configs, userStorage }) => {
   const [users, setUsers] = useState([]);
   const [userSelected, setUserSelected] = useState(null);
   const [openDialogRemove, setOpenDialogRemove] = useState(false);
 
   useEffect(() => {
-    chrome.storage.sync.get(['users'], ({ users }) => {
-      if (users) {
-        setUsers(users);
-      }
+    storageGet(['users'], 'sync').then(({ users: storedUsers }) => {
+      if (storedUsers) setUsers(storedUsers);
     });
   }, [userStorage.lastUpdate]);
 
@@ -32,8 +31,6 @@ const DialogUsersCustom = ({ configs, userStorage, ...props }) => {
       type: 'CLOSE_DIALOG_USERS',
     });
   };
-
-  const handleClick = (user) => {};
 
   return (
     <Fragment>
@@ -67,20 +64,14 @@ const DialogUsersCustom = ({ configs, userStorage, ...props }) => {
         <DialogTitle id="simple-dialog-title">Cuentas Guardadas</DialogTitle>
         <List>
           {users.length === 0 ? (
-            <Typography
-              style={{ margin: 10 }}
-              children="No existen cuentas guardadas."
-            />
+            <Typography sx={{ margin: 1.25 }}>No existen cuentas guardadas.</Typography>
           ) : null}
           {users.map((user) => (
-            <ListItem button onClick={handleClick} key={user}>
-              <Tooltip
-                title={getTypeAccountDescription(user.username)}
-                aria-label="descripcion"
-              >
-                <ListItemAvatar style={{ minWidth: 30 }}>
+            <ListItem key={user.username}>
+              <Tooltip title={getTypeAccountDescription(user.username)} aria-label="descripcion">
+                <ListItemAvatar sx={{ minWidth: 30 }}>
                   <Avatar
-                    style={{
+                    sx={{
                       height: 25,
                       width: 25,
                       backgroundColor: '#665bfa',
@@ -91,9 +82,7 @@ const DialogUsersCustom = ({ configs, userStorage, ...props }) => {
                   </Avatar>
                 </ListItemAvatar>
               </Tooltip>
-              <ListItemText
-                primary={user.username.split('@')[0].slice(0, 23)}
-              />
+              <ListItemText primary={user.username.split('@')[0].slice(0, 23)} />
               <ListItemSecondaryAction>
                 <IconButton
                   edge="end"
@@ -110,7 +99,6 @@ const DialogUsersCustom = ({ configs, userStorage, ...props }) => {
           ))}
         </List>
       </Dialog>
-      ;
     </Fragment>
   );
 };
@@ -139,11 +127,9 @@ const getTypeAccountDescription = (username) => {
   }
 };
 
-const mapStateToProps = (state) => {
-  return {
-    configs: state.configs,
-    userStorage: state.userStorage,
-  };
-};
+const mapStateToProps = (state) => ({
+  configs: state.configs,
+  userStorage: state.userStorage,
+});
 
 export default connect(mapStateToProps)(DialogUsersCustom);

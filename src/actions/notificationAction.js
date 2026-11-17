@@ -1,3 +1,5 @@
+import { storageGet } from '../utils/chrome';
+
 export const disableWarnings = () => {
   return (dispatch) => {
     dispatch({ type: 'DISABLE_WARNINGS' });
@@ -12,11 +14,9 @@ export const enableWarnings = () => {
 
 export const restoreDisableWarning = () => {
   return (dispatch) => {
-    chrome.storage.local.get('disableWarnings', e => {
-      if (e.disableWarnings)
-        dispatch(disableWarnings());
-      else
-        dispatch(enableWarnings());
+    storageGet('disableWarnings').then((e) => {
+      if (e.disableWarnings) dispatch(disableWarnings());
+      else dispatch(enableWarnings());
     });
   };
 };

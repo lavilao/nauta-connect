@@ -1,3 +1,5 @@
+import { storageGet } from '../utils/chrome';
+
 export const preventSleepConnected = () => {
   return (dispatch) => {
     dispatch({ type: 'PREVENT_SLEEP_CONNECTED' });
@@ -12,11 +14,9 @@ export const allowSleepConnected = () => {
 
 export const restorePreventSleepConnected = () => {
   return (dispatch) => {
-    chrome.storage.local.get('preventSleepConnected', e => {
-      if (e.preventSleepConnected)
-        dispatch(preventSleepConnected());
-      else
-        dispatch(allowSleepConnected());
+    storageGet('preventSleepConnected').then((e) => {
+      if (e.preventSleepConnected) dispatch(preventSleepConnected());
+      else dispatch(allowSleepConnected());
     });
   };
 };

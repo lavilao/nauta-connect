@@ -1,5 +1,20 @@
 const DEFAULT_PORT_NAME = 'redux-store';
 
+/**
+ * Removes the pieces of the state that must never be written to disk.
+ * The decrypted password lives only in memory while the popup is open.
+ */
+export const sanitizeState = (state) => {
+  if (!state || !state.userStorage) return state;
+  return {
+    ...state,
+    userStorage: {
+      ...state.userStorage,
+      password: '',
+    },
+  };
+};
+
 export function wrapStore(store, { portName = DEFAULT_PORT_NAME } = {}) {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === `${portName}-getState`) {
@@ -13,15 +28,25 @@ export function wrapStore(store, { portName = DEFAULT_PORT_NAME } = {}) {
     }
     if (message.type === `${portName}-subscribe`) {
       const unsubscribe = store.subscribe(() => {
-        chrome.storage.local.set({ [portName + '-state']: store.getState() });
+        chrome.storage.local.set({
+          [portName + '-state']: sanitizeState(store.getState()),
+        });
       });
-      chrome.storage.local.set({ [portName + '-state']: store.getState() });
-      sendResponse({ success: true });
+      chrome.storage.local.set({
+        [portName + '-state']: sanitizeState(store.getState()),
+      });
+      sendResponse({ success: true, unsubscribe: () => unsubscribe() });
       return true;
     }
   });
 }
 
+/**
+ * Proxy of the redux store used by the extension pages.
+ * The real store lives in the service worker, the pages dispatch the actions
+ * through `chrome.runtime.sendMessage` and receive the updated state through
+ * `chrome.storage.onChanged`.
+ */
 export class Store {
   constructor({ portName = DEFAULT_PORT_NAME, state = {} } = {}) {
     this.portName = portName;

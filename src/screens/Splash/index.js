@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, IconButton, Tooltip, Fab } from '@mui/material';
 import { MoreVert, Info, AlarmAdd, Timer } from '@mui/icons-material';
 import bordUp from '../../assets/vector/bord-up.svg';
@@ -18,36 +18,24 @@ import { msToHMMSS } from '../../utils/shorters';
 
 const Splash = ({ configs, login, timerConnection, proxy, ...props }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [hmsTimer, setHmsTimer] = React.useState('--:--:--');
-  const [idIntervalUpdate, setIdIntervalUpdate] = React.useState(null);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    if (!timerConnection.enabled) {
-      clearInterval(idIntervalUpdate);
-      setHmsTimer('--:--:--');
-      setIdIntervalUpdate(null);
-    } else {
-      const dEnd = new Date(
-        timerConnection.timeInit + timerConnection.msDuration
-      );
-      const int = setInterval(() => {
-        const dCurrent = new Date();
-        setHmsTimer(msToHMMSS(dEnd - dCurrent));
-      }, 1000);
-      if (idIntervalUpdate) {
-        clearInterval(idIntervalUpdate);
-        setHmsTimer('--:--:--');
-      }
-      setIdIntervalUpdate(int);
-    }
-  }, [
-    timerConnection.enabled,
-    timerConnection.msDuration,
-    timerConnection.timeInit,
-  ]);
+    if (!timerConnection.enabled) return undefined;
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [timerConnection.enabled]);
+
+  const hmsTimer = timerConnection.enabled
+    ? msToHMMSS(timerConnection.timeInit + timerConnection.msDuration - now)
+    : '--:--:--';
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -60,6 +48,7 @@ const Splash = ({ configs, login, timerConnection, proxy, ...props }) => {
         : configs.animSplashInit
           ? 'animOpen'
           : 'staticOpen';
+
   return (
     <Box className={`boxSplashInit`} {...props}>
       <img className={`rectUp ${animClass}`} src={rectUp} alt="rect-up" />
@@ -125,7 +114,7 @@ const Splash = ({ configs, login, timerConnection, proxy, ...props }) => {
             variant="extended"
             size="small"
             color="inherit"
-            aria-label="add"
+            aria-label="cancelar la desconexión automática"
             onClick={() => {
               chrome.runtime.sendMessage({ type: 'STOP_TIMER_DISCONNECT' });
             }}
@@ -138,7 +127,9 @@ const Splash = ({ configs, login, timerConnection, proxy, ...props }) => {
 
       <AlertDialogCustom
         title={`Calificar ${configs.navigator === 'firefox' ? 'el complemento' : 'la extensión'}`}
-        description={`Le gustaría calificar que tan útil le ha resultado ${configs.navigator === 'firefox' ? 'este complemento' : 'esta extensión'} para usted.`}
+        description={`Le gustaría calificar que tan útil le ha resultado ${
+          configs.navigator === 'firefox' ? 'este complemento' : 'esta extensión'
+        } para usted.`}
         agreeText="Si"
         disagreeText="Más tarde"
         openInit={configs.openDialogQualified}
@@ -157,14 +148,11 @@ const Splash = ({ configs, login, timerConnection, proxy, ...props }) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  debugger;
-  return {
-    configs: state.configs,
-    login: state.login,
-    timerConnection: state.timerConnection,
-    proxy: state.proxy,
-  };
-};
+const mapStateToProps = (state) => ({
+  configs: state.configs,
+  login: state.login,
+  timerConnection: state.timerConnection,
+  proxy: state.proxy,
+});
 
 export default connect(mapStateToProps)(Splash);

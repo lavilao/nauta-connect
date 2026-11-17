@@ -1,4 +1,4 @@
-import { PROXYS_SERVERS_LIST } from '../../utils/env';
+import { PROXYS_SERVERS_LIST } from '../../config';
 
 export const proxyInitialState = {
   automatic: false,
@@ -7,9 +7,6 @@ export const proxyInitialState = {
   checkConnection: false,
   serversList: PROXYS_SERVERS_LIST,
   byPassList: ['localhost', '127.0.0.1'],
-
-  firefoxProxyErrorListener: null,
-  firefoxProxyListener: null,
 };
 
 const proxy = (state = proxyInitialState, { type, payload }) => {
@@ -28,10 +25,6 @@ const proxy = (state = proxyInitialState, { type, payload }) => {
       return { ...state, currentPosProxy: payload, checkConnection: false };
     case 'CHECKED_PROXY':
       return { ...state, checkConnection: true };
-    case 'SET_FIREFOX_ERROR_LISTENER':
-      return { ...state, firefoxProxyErrorListener: payload };
-    case 'SET_FIREFOX_LISTENER':
-      return { ...state, firefoxProxyListener: payload };
     default:
       return state;
   }

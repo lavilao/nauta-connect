@@ -1,5 +1,5 @@
 export const userStorageInitial = {
-  status: 'none', // "loaded" || "cleared" || "saved"
+  status: 'none', // "loaded" || "cleared" | "saved"
   username: '',
   password: '',
   lastUpdate: new Date().getTime(),
@@ -20,13 +20,14 @@ const userStorage = (state = userStorageInitial, { type, payload }) => {
         ...state,
         status: 'saved',
         username: payload.username,
-        password: payload.password,
+        // The decrypted password is never kept in the persisted state.
+        password: '',
         lastUpdate: new Date().getTime(),
       };
     case 'CLEAR_USER_STORE':
-      return { status: 'cleared', lastUpdate: new Date().getTime() };
+      return { ...state, status: 'cleared', password: '', lastUpdate: new Date().getTime() };
     case 'REMOVE_USER_STORE':
-      return { lastUpdate: new Date().getTime() };
+      return { ...state, status: 'cleared', password: '', lastUpdate: new Date().getTime() };
     default:
       return state;
   }

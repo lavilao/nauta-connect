@@ -1,19 +1,8 @@
-import React from 'react';
-import { makeStyles } from '@mui/styles';
 import TextField from '@mui/material/TextField';
 import { useField } from 'formik';
 import InputAdornment from '@mui/material/InputAdornment';
 import Tooltip from '@mui/material/Tooltip';
 import { Error } from '@mui/icons-material';
-
-const useStyles = makeStyles((theme) => ({
-  field: {
-    marginTop: 10,
-  },
-  input: {
-    borderRadius: 20,
-  },
-}));
 
 const TextFieldCustom = ({
   label,
@@ -27,12 +16,11 @@ const TextFieldCustom = ({
   submitted,
   ...props
 }) => {
-  const classes = useStyles();
   const [field] = useField(props);
   return (
     <TextField
       {...props}
-      className={classes.field}
+      sx={{ mt: 1.25 }}
       {...field}
       disabled={isSubmitting}
       onBlur={(ev) => {
@@ -50,7 +38,7 @@ const TextFieldCustom = ({
       label={label}
       id={id}
       type={type}
-      onKeyPress={(event) => {
+      onKeyDown={(event) => {
         if (event.key === 'Enter' && !!next) {
           event.preventDefault();
           next.focus();
@@ -59,15 +47,17 @@ const TextFieldCustom = ({
           submitAction();
         }
       }}
-      InputProps={{
-        endAdornment: errors[field.name] ? (
-          <InputAdornment position="end">
-            <Tooltip title={errors[field.name]} arrow>
-              <Error />
-            </Tooltip>
-          </InputAdornment>
-        ) : null,
-        className: classes.input,
+      slotProps={{
+        input: {
+          endAdornment: errors[field.name] ? (
+            <InputAdornment position="end">
+              <Tooltip title={errors[field.name]} arrow>
+                <Error />
+              </Tooltip>
+            </InputAdornment>
+          ) : null,
+          sx: { borderRadius: 20 },
+        },
       }}
     />
   );

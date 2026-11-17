@@ -13,16 +13,21 @@
 Extensión de código fuente abierto, publicado en Github en el enlace [mmaciass/nauta-connect](https://github.com/mmaciass/nauta-connect)
 
 #### Ya puedes instalarlo en tu navegador.
-- Para Google Chrome, desde el enlace de  [Google/nauta-connect](https://chrome.google.com/webstore/detail/nauta-connect/ppopcmgfgajciikdmipmmpffkpccinep).
-- Para Mozilla Firefox, desde el enlace de  [Firefox/nauta-connect](https://addons.mozilla.org/es/firefox/addon/nauta-connect/).
+- Para Google Chrome, desde el enlace de [Google/nauta-connect](https://chromewebstore.google.com/detail/nauta-connect/ppopcmgfgajciikdmipmmpffkpccinep).
+- Para Mozilla Firefox, desde el enlace de [Firefox/nauta-connect](https://addons.mozilla.org/es/firefox/addon/nauta-connect/).
 
 #### Tecnologías y herramientas utilizadas en el proceso de desarrollo:
 
-- React ^16.13.1
-- Redux ^4.0.5
-- Node ^v13.12.0
-- Yarn ^1.22.4
-- NPM ^6.14.5
+- Manifest V3 (service worker, `chrome.alarms`, offscreen document)
+- React 19
+- Redux 5
+- Material UI 7
+- Formik 2 + Yup
+- jose (validación de licencias con WebCrypto)
+- dayjs
+- Webpack 5
+- Node ^v20.12.0
+- Bun ^1.4.4
 - Otras
 
 #### Navegador en que se ha probado satisfactoriamente
@@ -31,15 +36,23 @@ Extensión de código fuente abierto, publicado en Github en el enlace [mmaciass
 - Mozilla Firefox
 - Opera
 
-#### Pasos para configurar el proyecto
+#### Pasos para configurar el proyecto:
 
 - Clonar el proyecto de Github.
-- Abrir un terminal en la carpeta del proyecto y ejecutar el siguiente comando: `yarn` o `npm install`.
+- Abrir un terminal en la carpeta del proyecto y ejecutar el siguiente comando: `bun install` (o `npm install`).
 - Esperar hasta que termine de instalarse las dependencias.
-- Para comenzar el modo de desarrollo ejecutar el comando `yarn start` o `npm run start`.
+- Para comenzar el modo de desarrollo ejecutar el comando `bun run start` (o `npm run start`).
 - Una vez terminado el transpilado, ya se puede instalar en el navegador la extensión en modo desarrollador.
 
-Para compilar la extension en modo de producción debe ejecutar el comando `yarn build` o `npm run build`.
+Para compilar la extension en modo de producción debe ejecutar el comando `bun run build` (o `npm run build`), que deja el resultado en la carpeta `build`.
+
+#### Configuración opcional
+
+- `REACT_APP_KEY_PROTECT`: clave usada para cifrar las contraseñas guardadas en `chrome.storage.sync`. Si no se define, las cuentas guardadas no se pueden recuperar. Puede exportarse en el entorno antes de compilar:
+
+```bash
+REACT_APP_KEY_PROTECT="su-clave" bun run build
+```
 
 ### Funciones que aún faltan por implementar:
 

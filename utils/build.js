@@ -2,11 +2,27 @@
 process.env.BABEL_ENV = 'production';
 process.env.NODE_ENV = 'production';
 
-var webpack = require('webpack'),
-  config = require('../webpack.config');
+const webpack = require('webpack');
+const config = require('../webpack.config');
 
-delete config.chromeExtensionBoilerplate;
+webpack(config, (err, stats) => {
+  if (err) {
+    console.error(err.stack || err);
+    if (err.details) console.error(err.details);
+    process.exitCode = 1;
+    return;
+  }
 
-webpack(config, function(err) {
-  if (err) throw err;
+  console.log(
+    stats.toString({
+      colors: true,
+      modules: false,
+      children: false,
+      chunks: false,
+    })
+  );
+
+  if (stats.hasErrors()) {
+    process.exitCode = 1;
+  }
 });

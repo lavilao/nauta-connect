@@ -4,6 +4,7 @@ import { clearSessionInStorage } from './storeSessionAction';
 import { basicNotification, delayedNotification } from '../utils/shorters';
 import Log from '../utils/log';
 import updateTimeLeftAction from './timeAction';
+import { ETECSA_BASE_URL } from '../config';
 
 const logoutAction = () => {
   return (dispatch, getState) => {
@@ -11,11 +12,9 @@ const logoutAction = () => {
 
     dispatch({ type: 'LOGOUT_BEGIN' });
     const bodyData = bodyDataConstructor(state);
-    fetchCustom('https://secure.etecsa.net:8443/LogoutServlet', bodyData)
-      .then(value => {
-        return value.text();
-      })
-      .then(value => {
+    fetchCustom(`${ETECSA_BASE_URL}/LogoutServlet`, bodyData)
+      .then((value) => value.text())
+      .then((value) => {
         if (value.includes('logoutcallback(\'FAILURE\')')) {
           basicNotification('No se ha podido cerrar la sesión.');
           dispatch({ type: 'LOGOUT_FAILURE' });
@@ -29,11 +28,13 @@ const logoutAction = () => {
           dispatch(disconnectSplash());
         }
       })
-      .catch(reason => {
+      .catch((reason) => {
         Log.Debug('error reason >>', reason);
         basicNotification('Ha ocurrido un error con la conexión de red.');
         if (!state.configs.disableWarnings)
-          delayedNotification('Por favor revise su conexión de red y asegúrese de no tener ningún VPN o otra herramienta que filtre o manipule el tráfico de la red activa.');
+          delayedNotification(
+            'Por favor revise su conexión de red y asegúrese de no tener ningún VPN u otra herramienta que filtre o manipule el tráfico de la red activa.'
+          );
         dispatch({ type: 'LOGOUT_FAILURE' });
       });
   };
@@ -50,13 +51,16 @@ export const forceLogoutAction = () => {
       dispatch({ type: 'RESTORE_NONE' });
     }, 1000 * 1.5);
     const bodyData = bodyDataConstructor(state);
-    fetchCustom('https://secure.etecsa.net:8443/LogoutServlet', bodyData)
-      .then(() => {
-      })
+    fetchCustom(`${ETECSA_BASE_URL}/LogoutServlet`, bodyData)
+      .then(() => {})
       .catch(() => {
-        basicNotification('Se ha forzado el cierre de la sesión, esto no asegura que la conexión se haya cerrado, por favor cerciórese que su sesión termino correctamente.');
+        basicNotification(
+          'Se ha forzado el cierre de la sesión, esto no asegura que la conexión se haya cerrado, por favor cerciórese que su sesión termino correctamente.'
+        );
         if (!state.configs.disableWarnings)
-          delayedNotification('Si necesita volver al estado anterior utilice la opción "Recuperar sesión" del menú de opciones.');
+          delayedNotification(
+            'Si necesita volver al estado anterior utilice la opción "Recuperar sesión" del menú de opciones.'
+          );
       });
   };
 };
@@ -71,13 +75,10 @@ export const endTimeToLogout = () => {
       dispatch({ type: 'RESTORE_NONE' });
     }, 1000 * 1.5);
     const bodyData = bodyDataConstructor(state);
-    fetchCustom('https://secure.etecsa.net:8443/LogoutServlet', bodyData)
-      .then(() => {
-      })
+    fetchCustom(`${ETECSA_BASE_URL}/LogoutServlet`, bodyData)
+      .then(() => {})
       .catch(() => {
         basicNotification('Su tiempo de conexión disponible se ha agotado.');
-        // if (!state.configs.disableWarnings)
-        //   delayedNotification('Si necesita volver al estado anterior utilice la opción "Recuperar sesión" del menú de opciones.');
       });
   };
 };

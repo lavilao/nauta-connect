@@ -1,17 +1,10 @@
-var webpack = require('webpack');
-var path = require('path');
-var fileSystem = require('fs-extra');
-var env = require('./utils/env');
-var { CleanWebpackPlugin } = require('clean-webpack-plugin');
-var CopyWebpackPlugin = require('copy-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const path = require('path');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-// load the secrets
-var alias = {};
-
-var secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
-
-var fileExtensions = [
+const fileExtensions = [
   'jpg',
   'jpeg',
   'png',
@@ -24,26 +17,18 @@ var fileExtensions = [
   'woff2',
 ];
 
-if (fileSystem.existsSync(secretsPath)) {
-  alias['secrets'] = secretsPath;
-}
-
-var options = {
+const options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
     popup: path.join(__dirname, 'src', 'pages', 'Popup', 'index.jsx'),
-    background: path.join(
-      __dirname,
-      'src',
-      'pages',
-      'Background',
-      'background.js'
-    ),
+    background: path.join(__dirname, 'src', 'pages', 'Background', 'background.js'),
     license: path.join(__dirname, 'src', 'pages', 'License', 'index.jsx'),
+    offscreen: path.join(__dirname, 'src', 'pages', 'Offscreen', 'offscreen.js'),
   },
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: '[name].bundle.js',
+    clean: true,
   },
   module: {
     rules: [
@@ -71,7 +56,10 @@ var options = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
+            presets: [
+              ['@babel/preset-env', { targets: 'chrome >= 116' }],
+              ['@babel/preset-react', { runtime: 'automatic' }],
+            ],
             plugins: ['@babel/plugin-transform-class-properties'],
           },
         },
@@ -79,26 +67,19 @@ var options = {
     ],
   },
   resolve: {
-    alias: alias,
     extensions: fileExtensions
       .map((ext) => '.' + ext)
       .concat(['.js', '.jsx', '.css']),
-    fallback: {
-      buffer: require.resolve('buffer/'),
-      crypto: require.resolve('crypto-browserify'),
-      stream: require.resolve('stream-browserify'),
-      util: require.resolve('util/'),
-      vm: require.resolve('vm-browserify'),
-    },
   },
   plugins: [
     new webpack.ProgressPlugin(),
     new CleanWebpackPlugin(),
-    new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
-      process: 'process/browser',
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.REACT_APP_KEY_PROTECT': JSON.stringify(
+        process.env.REACT_APP_KEY_PROTECT || ''
+      ),
     }),
-    new webpack.EnvironmentPlugin(['NODE_ENV']),
     new CopyWebpackPlugin({
       patterns: [
         {
@@ -115,8 +96,9 @@ var options = {
           },
         },
         {
+          // The icons are referenced from the root of the manifest.
           from: 'src/assets/img',
-          to: 'img',
+          to: '.',
         },
         {
           from: 'src/assets/video',
@@ -134,10 +116,15 @@ var options = {
       filename: 'license.html',
       chunks: ['license'],
     }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'pages', 'Offscreen', 'index.html'),
+      filename: 'offscreen.html',
+      chunks: ['offscreen'],
+    }),
   ],
 };
 
-if (env.NODE_ENV === 'development') {
+if (options.mode === 'development') {
   options.devtool = 'inline-source-map';
 }
 

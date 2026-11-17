@@ -1,64 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
-import { makeStyles } from '@mui/styles';
-import { Skeleton } from '@mui/material';
+import Skeleton from '@mui/material/Skeleton';
+import { useTheme } from '@mui/material/styles';
+import { storageGet } from '../../utils/chrome';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
-    marginBottom: 15,
-  },
-  actions: {
-    alignSelf: 'center',
-  },
-  inputSkeleton: {
-    height: 40,
-    width: '100%',
-    marginTop: 8,
-  },
-}));
-
-const Identity = ({ ...props }) => {
-  const classes = useStyles();
+const Identity = () => {
+  const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
+  const [identity, setIdentity] = useState({ id: '', timeCheck: '', client: '' });
 
-  const [id, setId] = useState('');
-  const [timeCheck, setTimeCheck] = useState('');
-  const [client, setClient] = useState('');
+  const paperStyle = { padding: theme.spacing(2), marginBottom: 15 };
+  const inputSkeleton = { height: 40, width: '100%', marginTop: 8 };
 
   useEffect(() => {
-    setLoading(true);
-    chrome.storage.sync.get(['identity'], (v) => {
+    let active = true;
+    storageGet(['identity'], 'sync').then((v) => {
+      if (!active) return;
       if (v.identity) {
-        setId(v.identity.id);
-        setTimeCheck(v.identity.timeCheck);
-        setClient(v.identity.client);
+        setIdentity({
+          id: v.identity.id,
+          timeCheck: v.identity.timeCheck,
+          client: v.identity.client,
+        });
       }
       setLoading(false);
     });
+    return () => {
+      active = false;
+    };
   }, []);
 
+  const renderField = (content) =>
+    loading ? <Skeleton variant="rect" animation="wave" sx={inputSkeleton} /> : content;
+
   return (
-    <Paper className={classes.paper} {...props}>
-      <Grid container className={classes.root} spacing={2}>
-        <Grid item xs={4} className={classes.actions}>
+    <Paper sx={paperStyle}>
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 4 }} sx={{ alignSelf: 'center' }}>
           <Typography align="center">IDENTIDAD DEL USUARIO</Typography>
         </Grid>
-        <Grid item xs={3}>
-          {loading ? (
-            <Skeleton
-              variant="rect"
-              animation="wave"
-              className={classes.inputSkeleton}
-            />
-          ) : (
+        <Grid size={{ xs: 3 }}>
+          {renderField(
             <TextField
               margin="dense"
               size="small"
@@ -66,19 +52,13 @@ const Identity = ({ ...props }) => {
               label="ID del usuario"
               variant="outlined"
               type="number"
-              value={id}
-              InputLabelProps={{ shrink: true }}
+              value={identity.id}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
           )}
         </Grid>
-        <Grid item xs={3}>
-          {loading ? (
-            <Skeleton
-              variant="rect"
-              animation="wave"
-              className={classes.inputSkeleton}
-            />
-          ) : (
+        <Grid size={{ xs: 3 }}>
+          {renderField(
             <TextField
               margin="dense"
               size="small"
@@ -86,27 +66,21 @@ const Identity = ({ ...props }) => {
               label="Tiempo de chequeo"
               variant="outlined"
               type="number"
-              value={timeCheck}
-              InputLabelProps={{ shrink: true }}
+              value={identity.timeCheck}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
           )}
         </Grid>
-        <Grid item xs={2}>
-          {loading ? (
-            <Skeleton
-              variant="rect"
-              animation="wave"
-              className={classes.inputSkeleton}
-            />
-          ) : (
+        <Grid size={{ xs: 2 }}>
+          {renderField(
             <TextField
               margin="dense"
               size="small"
               fullWidth
               label="Navegador"
               variant="outlined"
-              value={client}
-              InputLabelProps={{ shrink: true }}
+              value={identity.client}
+              slotProps={{ inputLabel: { shrink: true } }}
             />
           )}
         </Grid>

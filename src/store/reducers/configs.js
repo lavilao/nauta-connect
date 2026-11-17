@@ -1,4 +1,5 @@
 import { openInNewTab } from '../../utils/shorters';
+import { storageSet } from '../../utils/chrome';
 
 export const configInitialState = {
   theme: 'auto', // 'auto' || 'dark' || 'light'
@@ -6,7 +7,7 @@ export const configInitialState = {
   animSplashDisconnect: false,
   openDialogUsers: false,
   navigator: 'chrome', // 'chrome' || 'firefox' || 'opera' || 'unknown'
-  urlShared: 'https://chrome.google.com/webstore/detail/nauta-connect/ppopcmgfgajciikdmipmmpffkpccinep',
+  urlShared: 'https://chromewebstore.google.com/detail/nauta-connect/ppopcmgfgajciikdmipmmpffkpccinep',
   openDialogAbout: false,
   countConnect: 0,
   qualified: false,
@@ -16,10 +17,9 @@ export const configInitialState = {
 };
 
 export const urlsSharedNavigator = {
-  chrome: 'https://chrome.google.com/webstore/detail/nauta-connect/ppopcmgfgajciikdmipmmpffkpccinep',
+  chrome: 'https://chromewebstore.google.com/detail/nauta-connect/ppopcmgfgajciikdmipmmpffkpccinep',
   firefox: 'https://addons.mozilla.org/es/firefox/addon/nauta-connect/',
 };
-
 
 const configs = (state = configInitialState, { type, payload }) => {
   switch (type) {
@@ -29,22 +29,14 @@ const configs = (state = configInitialState, { type, payload }) => {
       return { ...state, animSplashInit: true };
     case 'DISCONNECT_SPLASH_END':
       return { ...state, animSplashInit: false };
-    case 'NEXT_THEME':
-      const nextTheme = state.theme === 'auto'
-        ? 'dark'
-        : state.theme === 'dark'
-          ? 'light'
-          : 'auto';
-      chrome.storage.local.set({ theme: nextTheme });
-      return {
-        ...state,
-        theme: nextTheme,
-      };
+    case 'NEXT_THEME': {
+      const nextTheme =
+        state.theme === 'auto' ? 'dark' : state.theme === 'dark' ? 'light' : 'auto';
+      storageSet({ theme: nextTheme });
+      return { ...state, theme: nextTheme };
+    }
     case 'SET_THEME':
-      return {
-        ...state,
-        theme: payload,
-      };
+      return { ...state, theme: payload };
     case 'OPEN_DIALOG_USERS':
       return { ...state, openDialogUsers: true };
     case 'CLOSE_DIALOG_USERS':
@@ -59,33 +51,34 @@ const configs = (state = configInitialState, { type, payload }) => {
       return { ...state, openDialogQualified: false };
     case 'QUALIFIED_ACCEPTED':
       openInNewTab(state.urlShared);
-      chrome.storage.local.set({ qualified: true });
+      storageSet({ qualified: true });
       return { ...state, qualified: true };
-    case 'NAVIGATOR_RECOGNIZED':
-      console.info('Navigator detected:', payload);
-      const url = urlsSharedNavigator[payload] || urlsSharedNavigator['chrome'];
-      console.info('URL to Shared:', url);
+    case 'NAVIGATOR_RECOGNIZED': {
+      const url = urlsSharedNavigator[payload] || urlsSharedNavigator.chrome;
       return { ...state, navigator: payload, urlShared: url };
+    }
     case 'SET_COUNT_CONNECT':
       return { ...state, countConnect: payload };
     case 'SET_QUALIFIED':
       return { ...state, qualified: payload };
-    case 'LOGIN_SUCCESS':
-      chrome.storage.local.set({ countConnect: state.countConnect + 1 });
-      if (!state.qualified && state.countConnect !== 0 && state.countConnect % 50 === 0)
-        return { ...state, countConnect: state.countConnect + 1, openDialogQualified: true };
-      return { ...state, countConnect: state.countConnect + 1 };
+    case 'LOGIN_SUCCESS': {
+      const countConnect = state.countConnect + 1;
+      storageSet({ countConnect });
+      if (!state.qualified && countConnect !== 0 && countConnect % 50 === 0)
+        return { ...state, countConnect, openDialogQualified: true };
+      return { ...state, countConnect };
+    }
     case 'PREVENT_SLEEP_CONNECTED':
-      chrome.storage.local.set({ preventSleepConnected: true });
+      storageSet({ preventSleepConnected: true });
       return { ...state, preventSleepConnected: true };
     case 'ALLOW_SLEEP_CONNECTED':
-      chrome.storage.local.set({ preventSleepConnected: false });
+      storageSet({ preventSleepConnected: false });
       return { ...state, preventSleepConnected: false };
     case 'DISABLE_WARNINGS':
-      chrome.storage.local.set({ disableWarnings: true });
+      storageSet({ disableWarnings: true });
       return { ...state, disableWarnings: true };
     case 'ENABLE_WARNINGS':
-      chrome.storage.local.set({ disableWarnings: false });
+      storageSet({ disableWarnings: false });
       return { ...state, disableWarnings: false };
     default:
       return state;

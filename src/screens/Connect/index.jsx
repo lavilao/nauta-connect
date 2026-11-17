@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
-import Connect from './connect';
 import Container from '@mui/material/Container';
+import Connect from './connect';
 
-const connectController = (props) => {
+const ConnectController = () => {
   const [loading, setLoading] = useState(true);
-  if (loading) {
-    setTimeout(() => {
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
       setLoading(false);
     }, 1000 * 1.3);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
     return (
-      <Container style={{ textAlign: 'center', marginTop: 100 }}>
-        <CircularProgress style={{ color: 'white' }} />
+      <Container sx={{ textAlign: 'center', mt: 12.5 }}>
+        <CircularProgress sx={{ color: 'white' }} />
       </Container>
     );
   }
@@ -19,4 +24,4 @@ const connectController = (props) => {
   return <Connect />;
 };
 
-export default connectController;
+export default ConnectController;

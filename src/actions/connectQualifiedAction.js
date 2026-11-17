@@ -1,17 +1,17 @@
+import { storageGet } from '../utils/chrome';
+
 export const loadCountConnect = () => {
   return (dispatch) => {
-    chrome.storage.local.get('countConnect', e => {
-      if (e.countConnect)
-        dispatch({ type: 'SET_COUNT_CONNECT', payload: e.countConnect });
+    storageGet('countConnect').then((e) => {
+      if (e.countConnect) dispatch({ type: 'SET_COUNT_CONNECT', payload: e.countConnect });
     });
   };
 };
 
 export const loadQualifiedState = () => {
   return (dispatch) => {
-    chrome.storage.local.get('qualified', e => {
-      if (e.qualified)
-        dispatch({ type: 'SET_QUALIFIED', payload: e.qualified });
+    storageGet('qualified').then((e) => {
+      if (e.qualified) dispatch({ type: 'SET_QUALIFIED', payload: e.qualified });
     });
   };
 };

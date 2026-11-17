@@ -1,22 +1,13 @@
-import React from 'react';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import { makeStyles } from '@mui/styles';
-import { Skeleton } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    padding: theme.spacing(2),
-    marginBottom: 15,
-  },
-}));
-
-const Description = ({ ...props }) => {
-  const classes = useStyles();
+const Description = () => {
+  const theme = useTheme();
   const prices = { byMonths: 15, byYears: 120 };
 
   return (
-    <Paper className={classes.paper} {...props}>
+    <Paper sx={{ padding: theme.spacing(2), marginBottom: 15 }}>
       <Typography>
         <b>Estimado usuario.</b>
       </Typography>
@@ -28,17 +19,14 @@ const Description = ({ ...props }) => {
         <b>Precios:</b>
       </Typography>
       <Typography>
-        Licencia mensual: <b>$ {prices.byMonths.toFixed(2)}</b> CUP por mes (1 -
-        11 meses)
+        Licencia mensual: <b>$ {prices.byMonths.toFixed(2)}</b> CUP por mes (1 - 11 meses)
       </Typography>
       <Typography>
-        Licencia anual: <b>$ {prices.byYears.toFixed(2)}</b> CUP por año (1 - 5
-        años)
+        Licencia anual: <b>$ {prices.byYears.toFixed(2)}</b> CUP por año (1 - 5 años)
       </Typography>
       <Typography variant="subtitle2">
-        <b>IMPORTANTE:</b> TENIENDO EN CUENTA EL INMINENTE CAMBIO DEL VALOR DEL
-        CUP POR EL MOMENTO SOLO SE EMITIRÁN LICENCIAS CON DOS MESES DE DURACIÓN
-        MAXIMO.
+        <b>IMPORTANTE:</b> TENIENDO EN CUENTA EL INMINENTE CAMBIO DEL VALOR DEL CUP POR EL
+        MOMENTO SOLO SE EMITIRÁN LICENCIAS CON DOS MESES DE DURACIÓN MAXIMO.
       </Typography>
     </Paper>
   );

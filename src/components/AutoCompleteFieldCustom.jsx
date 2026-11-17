@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@mui/styles';
+import { useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import { useField } from 'formik';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -7,15 +6,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { Error } from '@mui/icons-material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { connect } from 'react-redux';
-
-const useStyles = makeStyles((theme) => ({
-  field: {
-    marginTop: 10,
-  },
-  input: {
-    borderRadius: 20,
-  },
-}));
+import { storageGet } from '../utils/chrome';
 
 const AutoCompleteFieldCustom = ({
   label,
@@ -31,15 +22,12 @@ const AutoCompleteFieldCustom = ({
   formikBag,
   ...props
 }) => {
-  const classes = useStyles();
   const [field] = useField(props);
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    chrome.storage.sync.get(['users'], ({ users }) => {
-      if (users) {
-        setUsers(users);
-      }
+    storageGet(['users'], 'sync').then(({ users: storedUsers }) => {
+      if (storedUsers) setUsers(storedUsers);
     });
   }, [userStorage.lastUpdate]);
 
@@ -59,9 +47,9 @@ const AutoCompleteFieldCustom = ({
       }}
       renderInput={(params) => (
         <TextField
-          className={classes.field}
           {...params}
           {...field}
+          sx={{ mt: 1.25 }}
           disabled={isSubmitting}
           onBlur={(ev) => {
             if (field.name === 'username')
@@ -78,7 +66,7 @@ const AutoCompleteFieldCustom = ({
           label={label}
           id={id}
           type={type}
-          onKeyPress={(event) => {
+          onKeyDown={(event) => {
             if (event.key === 'Enter' && !!next) {
               event.preventDefault();
               next.focus();
@@ -87,9 +75,8 @@ const AutoCompleteFieldCustom = ({
               submitAction();
             }
           }}
-          InputProps={{
-            ...params.InputProps,
-            ...{
+          slotProps={{
+            input: {
               endAdornment: errors[field.name] ? (
                 <InputAdornment position="end">
                   <Tooltip title={errors[field.name]} arrow>
@@ -97,7 +84,7 @@ const AutoCompleteFieldCustom = ({
                   </Tooltip>
                 </InputAdornment>
               ) : null,
-              className: classes.input,
+              sx: { borderRadius: 20 },
             },
           }}
         />
@@ -106,10 +93,8 @@ const AutoCompleteFieldCustom = ({
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    userStorage: state.userStorage,
-  };
-};
+const mapStateToProps = (state) => ({
+  userStorage: state.userStorage,
+});
 
 export default connect(mapStateToProps)(AutoCompleteFieldCustom);

@@ -1,19 +1,11 @@
-import React from 'react';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import { makeStyles } from '@mui/styles';
+import { useTheme } from '@mui/material/styles';
 
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    padding: theme.spacing(2),
-    marginBottom: 15,
-  },
-}));
-
-const Request = ({ ...props }) => {
-  const classes = useStyles();
+const Request = () => {
+  const theme = useTheme();
   return (
-    <Paper className={classes.paper} {...props}>
+    <Paper sx={{ padding: theme.spacing(2), marginBottom: 15 }}>
       <Typography align="center">Solicitar licencia</Typography>
     </Paper>
   );

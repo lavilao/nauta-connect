@@ -1,6 +1,7 @@
-import logoutAction from './logoutAction';
 import { basicNotification, delayedNotification } from '../utils/shorters';
 import { formatTime } from '../utils/timeUtil';
+
+export const AUTO_DISCONNECT_ALARM = 'nauta-auto-disconnect';
 
 export const openDialogTimer = () => {
   return (dispatch) => {
@@ -15,25 +16,28 @@ export const closeDialogTimer = () => {
 };
 
 export const startTimerDisconnect = (msDuration) => {
-  return (dispatch, getState) => {
-    const state = getState();
-    if (state.timerConnection.enabled)
-      dispatch({ type: 'STOP_TIMER_DISCONNECT' });
-    const idTimeOut = setTimeout(() => {
-      dispatch(logoutAction());
-      dispatch(stopTimerDisconnect());
-    }, msDuration);
-    basicNotification(`Su conexión se cerrara de forma automática pasado el tiempo de ${formatTime(msDuration)}.`);
-    if (!state.configs.disableWarnings)
-      delayedNotification('Asegúrese de no tener ningún VPN o otra herramienta que filtre o manipule el tráfico de la red activa, de lo contrario puede que la sesión no se cierre correctamente.');
-    dispatch({ type: 'START_TIMER_DISCONNECT', payload: { msDuration, idTimeOut } });
+  return (dispatch) => {
+    if (!msDuration) return;
+
+    // chrome.alarms survives the termination of the Manifest V3 service worker.
+    chrome.alarms.create(AUTO_DISCONNECT_ALARM, {
+      delayInMinutes: msDuration / (1000 * 60),
+    });
+
+    basicNotification(
+      `Su conexión se cerrara de forma automática pasado el tiempo de ${formatTime(msDuration)}.`
+    );
+    delayedNotification(
+      'Asegúrese de no tener ningún VPN o otra herramienta que filtre o manipule el tráfico de la red activa, de lo contrario puede que la sesión no se cierre correctamente.'
+    );
+    dispatch({ type: 'START_TIMER_DISCONNECT', payload: { msDuration } });
   };
 };
 
-
 export const stopTimerDisconnect = () => {
   return (dispatch) => {
-    basicNotification(`Se ha cancelado la desconexión automática.`);
+    chrome.alarms.clear(AUTO_DISCONNECT_ALARM);
+    basicNotification('Se ha cancelado la desconexión automática.');
     dispatch({ type: 'STOP_TIMER_DISCONNECT' });
   };
 };

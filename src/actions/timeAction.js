@@ -1,7 +1,8 @@
 import fetchCustom from '../utils/fetch';
 import { saveSessionInStorage } from './storeSessionAction';
-import * as moment from 'moment';
+import dayjs from 'dayjs';
 import { basicNotification } from '../utils/shorters';
+import { ETECSA_BASE_URL } from '../config';
 
 const updateTimeLeftAction = (reintentos = 0) => {
   return (dispatch, getState) => {
@@ -15,23 +16,18 @@ const updateTimeLeftAction = (reintentos = 0) => {
       wlanuserip: state.login.wlanuserip,
       loggerId: state.login.loggerId,
     };
-    fetchCustom('https://secure.etecsa.net:8443//EtecsaQueryServlet', bodyData)
-      .then(value => {
-        return value.text();
-      })
-      .then(value => {
-        if (value.includes('errorop'))
-          throw new Error('Error de operacion.');
-        const lastUpdateTime = moment().toISOString();
+    fetchCustom(`${ETECSA_BASE_URL}//EtecsaQueryServlet`, bodyData)
+      .then((value) => value.text())
+      .then((value) => {
+        if (value.includes('errorop')) throw new Error('Error de operacion.');
+        const lastUpdateTime = dayjs().toISOString();
         basicNotification(`Su tiempo restante de navegación es de ${value}.`);
         dispatch({ type: 'UPDATE_TIME_SUCCESS', payload: { lastTimeLeft: value, lastUpdateTime } });
         dispatch(saveSessionInStorage({ lastTimeLeft: value, lastUpdateTime }));
       })
-      .catch(reason => {
-        // basicNotification('Ha ocurrido un error con la conexión de red al obtener el tiempo disponible.');
+      .catch(() => {
         dispatch({ type: 'UPDATE_TIME_FAILURE' });
-        if (reintentos < 2)
-          dispatch(updateTimeLeftAction(++reintentos));
+        if (reintentos < 2) dispatch(updateTimeLeftAction(++reintentos));
       });
   };
 };

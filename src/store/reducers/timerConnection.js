@@ -3,7 +3,6 @@ export const timeConnectionInitialState = {
   enabled: false,
   timeInit: 0,
   msDuration: 0,
-  idTimeOut: null,
 };
 
 const timerConnection = (state = timeConnectionInitialState, { type, payload }) => {
@@ -14,22 +13,19 @@ const timerConnection = (state = timeConnectionInitialState, { type, payload }) 
       return { ...state, openDialog: false };
     case 'START_TIMER_DISCONNECT':
       return {
-        ...state, openDialog: false, enabled: true, timeInit: new Date().getTime(),
-        msDuration: payload.msDuration, idTimeOut: payload.idTimeOut,
+        ...state,
+        openDialog: false,
+        enabled: true,
+        timeInit: new Date().getTime(),
+        msDuration: payload.msDuration,
       };
     case 'STOP_TIMER_DISCONNECT':
-      return stopTimerDisconnect(state);
+      return { ...timeConnectionInitialState };
     case 'LOGOUT_SUCCESS':
-      return stopTimerDisconnect(state);
+      return { ...timeConnectionInitialState };
     default:
       return state;
   }
-};
-
-const stopTimerDisconnect = (state) => {
-  if (state.idTimeOut)
-    clearTimeout(state.idTimeOut);
-  return { ...timeConnectionInitialState };
 };
 
 export default timerConnection;

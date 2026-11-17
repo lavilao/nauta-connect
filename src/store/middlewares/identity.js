@@ -1,15 +1,16 @@
-const identityGenerator = (store) => (next) => (action) => {
+import { storageGet, storageSet } from '../../utils/chrome';
+
+const identityGenerator = (_store) => (next) => (action) => {
   const { type, payload } = action;
   if (type === 'NAVIGATOR_RECOGNIZED') {
-    chrome.storage.sync.get(['identity'], (val) => {
+    storageGet(['identity'], 'sync').then((val) => {
       if (!val.identity) {
         const identity = {
           id: parseInt((Math.random() * 10000000000000000).toString()),
           timeCheck: Date.now(),
           client: payload,
         };
-        console.info('IDENTITY GENERATED');
-        chrome.storage.sync.set({ identity });
+        storageSet({ identity }, 'sync');
       }
     });
   }

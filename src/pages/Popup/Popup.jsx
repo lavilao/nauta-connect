@@ -1,63 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import Login from '../../screens/Login';
-import NotifierMessenger from '../../components/NotifierMessenger';
-import { connect } from 'react-redux';
-import Connect from '../../screens/Connect';
-import useStyles from '../../screens/useStyles';
-import Splash from '../../screens/Splash';
-import { Box } from '@mui/material';
-import { ThemeProvider } from '@mui/styles';
+import { useEffect, useMemo } from 'react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { createTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import { blue, indigo } from '@mui/material/colors';
+import { connect } from 'react-redux';
+import Login from '../../screens/Login';
+import Connect from '../../screens/Connect';
+import Splash from '../../screens/Splash';
+import NotifierMessenger from '../../components/NotifierMessenger';
+
+const buildTheme = (themeMode) =>
+  createTheme({
+    palette: {
+      primary: indigo,
+      secondary: blue,
+      mode:
+        themeMode === 'auto'
+          ? window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'
+          : themeMode || 'light',
+    },
+    components: {
+      MuiMenuItem: { defaultProps: { dense: true } },
+      MuiListItem: { defaultProps: { dense: true } },
+    },
+  });
 
 const Popup = ({ login, configs, ...props }) => {
-  let [theme, setTheme] = useState(
-    createTheme({
-      palette: {
-        primary: indigo,
-        secondary: blue,
-        mode:
-          configs.theme === 'auto'
-            ? window.matchMedia &&
-              window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light'
-            : configs.theme || 'light',
-      },
-      components: {
-        MuiMenuItem: { defaultProps: { dense: true } },
-        MuiListItem: { defaultProps: { dense: true } },
-      },
-    })
-  );
-  const classes = useStyles();
-  useEffect(() => {
-    setTimeout(() => {
-      chrome.runtime.sendMessage({ type: 'HIDE_SPLASH' });
-    }, 1000);
-  }, []);
+  const theme = useMemo(() => buildTheme(configs.theme), [configs.theme]);
 
   useEffect(() => {
-    const themeNew = createTheme({
-      palette: {
-        primary: indigo,
-        secondary: blue,
-        mode:
-          configs.theme === 'auto'
-            ? window.matchMedia &&
-              window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light'
-            : configs.theme || 'light',
-      },
-      components: {
-        MuiMenuItem: { defaultProps: { dense: true } },
-        MuiListItem: { defaultProps: { dense: true } },
-      },
-    });
-    setTheme(themeNew);
-  }, [configs.theme]);
+    const timer = setTimeout(() => {
+      chrome.runtime.sendMessage({ type: 'HIDE_SPLASH' });
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -72,11 +50,9 @@ const Popup = ({ login, configs, ...props }) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    login: state.login,
-    configs: state.configs,
-  };
-};
+const mapStateToProps = (state) => ({
+  login: state.login,
+  configs: state.configs,
+});
 
 export default connect(mapStateToProps)(Popup);

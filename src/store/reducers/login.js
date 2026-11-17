@@ -1,30 +1,23 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 export const loginInitialState = {
   updateInstance: parseInt((Math.random() * 100000000).toFixed()),
   status: 'none', // 'disconected' | "loading" | "connected" | "error"
   idTimeOutNextUpdate: null,
-  // username: '',
-  // ATTRIBUTE_UUID: '',
-  // CSRFHW: '',
-  // wlanuserip: '',
-  // loggerId: '',
-  // lastUpdateTime: undefined,
-  // lastTimeLeft: undefined,
 };
 
 const login = (state = loginInitialState, { type, payload }) => {
   switch (type) {
     case 'LOGIN_BEGIN':
-      return { ...payload };
+      return { ...state, ...payload };
     case 'LOGIN_SUCCESS':
-      return { ...state, ...payload, lastUpdateTime: moment().toISOString() };
+      return { ...state, ...payload, lastUpdateTime: dayjs().toISOString() };
     case 'LOGIN_FAILURE':
       return { ...state, ...payload };
     case 'UPDATE_TIME_BEGIN':
       return state;
     case 'UPDATE_TIME_SUCCESS':
-      return { ...state, lastUpdateTime: moment().toISOString(), ...payload };
+      return { ...state, lastUpdateTime: dayjs().toISOString(), ...payload };
     case 'UPDATE_TIME_FAILURE':
       return state;
     case 'SET_ID_TIME_OUT_NEXT_UPDATE':

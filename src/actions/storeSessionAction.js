@@ -1,9 +1,10 @@
 import { checkAndTaskNextUpdate } from './loginAction';
 import { basicNotification } from '../utils/shorters';
+import { storageGet, storageRemove, storageSet } from '../utils/chrome';
 
 export const saveSessionInStorage = (session) => {
   return (dispatch) => {
-    chrome.storage.local.set(session, () => {
+    storageSet(session).then(() => {
       dispatch({ type: 'SAVED_SESSION_IN_STORAGE' });
     });
   };
@@ -11,10 +12,15 @@ export const saveSessionInStorage = (session) => {
 
 export const clearSessionInStorage = () => {
   return (dispatch) => {
-    chrome.storage.local.remove([
-      'username', 'ATTRIBUTE_UUID', 'CSRFHW', 'wlanuserip',
-      'loggerId', 'lastUpdateTime', 'lastTimeLeft',
-    ], () => {
+    storageRemove([
+      'username',
+      'ATTRIBUTE_UUID',
+      'CSRFHW',
+      'wlanuserip',
+      'loggerId',
+      'lastUpdateTime',
+      'lastTimeLeft',
+    ]).then(() => {
       dispatch({ type: 'REMOVED_SESSION_IN_STORAGE' });
     });
   };
@@ -22,20 +28,26 @@ export const clearSessionInStorage = () => {
 
 export const loadSessionFromStorage = () => {
   return (dispatch) => {
-    chrome.storage.local.get([
-      'username', 'ATTRIBUTE_UUID', 'CSRFHW', 'wlanuserip',
-      'loggerId', 'lastUpdateTime', 'lastTimeLeft',
-    ], (sc) => {
-      if (sc.username && sc.ATTRIBUTE_UUID && sc.CSRFHW && sc.lastUpdateTime && sc.lastTimeLeft) {
+    storageGet([
+      'username',
+      'ATTRIBUTE_UUID',
+      'CSRFHW',
+      'wlanuserip',
+      'loggerId',
+      'lastUpdateTime',
+      'lastTimeLeft',
+    ]).then((sc) => {
+      if (
+        sc.username &&
+        sc.ATTRIBUTE_UUID &&
+        sc.CSRFHW &&
+        sc.lastUpdateTime &&
+        sc.lastTimeLeft
+      ) {
         dispatch({ type: 'LOAD_SESSION_FROM_STORAGE', payload: sc });
         checkAndTaskNextUpdate(dispatch);
-      }
-      else {
-        // chrome.runtime.sendMessage({
-        //   type: 'SHOW_MESSAGE_ERROR',
-        //   payload: 'No se ha encontrado ninguna sesión para restablecer.',
-        // });
-        basicNotification('No se ha encontrado ninguna sesión para restablecer.')
+      } else {
+        basicNotification('No se ha encontrado ninguna sesión para restablecer.');
       }
     });
   };
